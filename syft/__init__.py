@@ -1,18 +1,61 @@
-from syft import he
-from syft import nn
-from syft import test
+"""Some syft imports..."""
 
-from syft.tensor import equal, TensorBase
-from syft.math import cumprod, cumsum, ceil, dot, matmul, addmm, addcmul
-from syft.math import addcdiv, addmv, addbmm, baddbmm, transpose
-from syft.math import unsqueeze, zeros, ones, rand, randn
+from syft import dp
+from syft import core
+from syft import spdz
+from syft.core.frameworks.torch import _SyftTensor
 
-s = str(he)
-s += str(nn)
-s += str(test)
+from syft.core.frameworks.torch import TorchHook
+from syft.core.frameworks.torch import (
+    _LocalTensor,
+    _PointerTensor,
+    _LogTensor,
+    _FixedPrecisionTensor,
+    _PlusIsMinusTensor,
+    _GeneralizedPointerTensor,
+    _SPDZTensor,
+    _SNNTensor,
+)
+from syft.core.workers import VirtualWorker, SocketWorker
+from syft.core.frameworks.numpy import array
 
-s += str(equal) + str(TensorBase) + str(cumprod) + str(cumsum) + str(ceil)
-s += str(dot) + str(matmul) + str(addmm) + str(addcmul) + str(addcdiv)
-s += str(addmv) + str(addbmm) + str(baddbmm)
-s += str(transpose) + str(rand) + str(randn) + str(ones) + str(zeros)
-s += str(unsqueeze)
+from torch.autograd import Variable, Variable as Var
+from torch.nn import Parameter
+
+__all__ = [
+    "core",
+    "spdz",
+    "dp",
+    "TorchHook",
+    "_LocalTensor",
+    "_PointerTensor",
+    "_LogTensor",
+    "_FixedPrecisionTensor",
+    "_PlusIsMinusTensor",
+    "_GeneralizedPointerTensor",
+    "_SPDZTensor",
+    "_SNNTensor",
+    "VirtualWorker",
+    "SocketWorker",
+    "array",
+    "Variable",
+    "Var",
+    "Parameter",
+]
+
+
+import syft
+import torch
+
+for f in dir(torch):
+    if "_" not in f:
+        setattr(syft, f, getattr(torch, f))
+
+setattr(syft, "deser", _SyftTensor.deser)
+
+
+# TODO: figure out how to let this be hooked here so that it happens
+# automatically when you import syft. Right now it breaks if you accidentally
+# hook again or if you need to hook it with a special local_worker
+# (such as SocketWorker)
+# hook = TorchHook(verbose=False)
